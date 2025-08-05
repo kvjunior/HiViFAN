@@ -386,20 +386,6 @@ python benchmark_scaling.py \
     --output_dir results/scaling_analysis
 ```
 
-## Citation
-
-If you use this code in your research, please cite our paper:
-
-```bibtex
-@article{hancross2024,
-  title={Hierarchical Attention Networks for Cross-Modal Pattern Recognition in Visual-Financial Data},
-  author={Victor, Kombou and Xia, Qi and Gao, Jianbin and others},
-  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
-  year={2024},
-  note={Under Review}
-}
-```
-
 ## License
 
 This project is released under the MIT License. See LICENSE file for details.
