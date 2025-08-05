@@ -1,326 +1,409 @@
-# HiViFAN: Hierarchical Visual-Financial Attention Networks for Multi-Modal NFT Market Analysis
+# HANCross: Hierarchical Attention Networks for Cross-Modal Pattern Recognition
 
 ## Overview
 
-HiViFAN is a comprehensive visual analytics framework that integrates computer vision and financial analysis through multi-modal deep learning for NFT market analysis. The system combines multi-scale visual feature extraction with temporal market dynamics modeling through attention mechanisms to predict NFT prices and analyze market behavior.
+HANCross is a theoretically-grounded framework for cross-modal learning between hierarchical visual features and temporal sequences. The system implements information-theoretic principles to optimally integrate multi-scale visual processing with adaptive temporal modeling through dynamic attention mechanisms. While validated on visual-temporal prediction in digital asset markets, the framework generalizes to diverse pattern recognition tasks requiring integration of visual and temporal modalities.
 
-### Key Features
+### Key Contributions
 
-- **Multi-Scale Visual Processing**: Four-level feature pyramid capturing NFT attributes from pixel-level to compositional patterns
-- **Dynamic Cross-Modal Attention**: Volatility-aware fusion mechanism adapting to market conditions
-- **Temporal Coherence Modeling**: Dilated convolutions with graph attention for market dynamics
-- **Interactive Visual Analytics**: Real-time dashboards with GPU-accelerated visualizations
-- **Theoretical Foundations**: Information-theoretic bounds guiding architectural design decisions
+- **Information-Theoretic Architecture Design**: Optimal latent dimensionality and multi-scale decomposition derived through variational information bottleneck principles
+- **Multi-Scale Visual Feature Pyramid**: Theoretically-justified four-level hierarchy based on frequency analysis and mutual information maximization
+- **Dynamic Cross-Modal Attention**: Volatility-aware gating mechanism that adaptively balances visual and temporal features according to data characteristics
+- **Temporal Coherence Modeling**: Dilated convolutions with exponentially increasing receptive fields capturing patterns from hourly to weekly scales
+- **Generalization Capability**: Robust cross-domain performance without architectural modifications or extensive fine-tuning
 
 ## System Requirements
 
 ### Hardware Requirements
 - **Minimum**: NVIDIA GPU with 8GB VRAM (RTX 3070 or equivalent)
-- **Recommended**: NVIDIA RTX 3090 or A100 with 24GB+ VRAM
-- **RAM**: 32GB system memory minimum, 64GB recommended
-- **Storage**: 100GB free space for datasets and model checkpoints
+- **Recommended**: NVIDIA RTX 3090 or A100 with 24GB+ VRAM for large-scale experiments
+- **RAM**: 32GB system memory minimum, 64GB recommended for full dataset processing
+- **Storage**: 150GB free space for datasets, features, and model checkpoints
 
 ### Software Dependencies
 - Python 3.9 or higher
-- CUDA 11.8 or higher
+- CUDA 11.8 or higher with cuDNN 8.6+
 - PyTorch 2.0 or higher with CUDA support
+- NumPy 1.23+ with MKL acceleration
 
 ## Installation
 
 ### Environment Setup
 
-
+```bash
 # Clone the repository
-git clone https://anonymous.4open.science/r/HiViFAN:-464A/
-cd HiViFAN
+git clone https://anonymous.4open.science/r/HANCross-BB62/
+cd HANCross
 
-# Create conda environment
-conda create -n hivifan python=3.9
-conda activate hivifan
+# Create conda environment with dependencies
+conda create -n hancross python=3.9
+conda activate hancross
 
 # Install PyTorch with CUDA support
 conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 
-# Install additional dependencies
+# Install core dependencies
 pip install -r requirements.txt
 
+# Install development dependencies (optional)
+pip install -r requirements-dev.txt
+```
 
-### Docker Installation (Alternative)
+### Docker Installation (Recommended for Reproducibility)
 
+```bash
+# Build Docker image with all dependencies
+docker build -t hancross:latest .
 
-# Build Docker image
-docker build -t hivifan:latest .
+# Run container with GPU support and volume mounting
+docker run --gpus all -v $(pwd):/workspace -p 8888:8888 hancross:latest
 
-# Run container with GPU support
-docker run --gpus all -v $(pwd):/workspace -p 8050:8050 hivifan:latest
-
+# For interactive development
+docker run --gpus all -it -v $(pwd):/workspace hancross:latest bash
+```
 
 ## Dataset Preparation
 
-### Required Datasets
+### Supported Dataset Formats
 
-The experiments require NFT transaction data and corresponding visual assets. We provide preprocessing scripts for the following collections:
+HANCross processes visual-temporal paired data with the following structure:
 
-- **CryptoPunks**: 167,492 transactions (primary dataset)
-- **Bored Ape Yacht Club**: 42,891 transactions
-- **Azuki**: 38,234 transactions  
-- **Art Blocks Curated**: 67,123 transactions
-
-### Data Structure
-
-
+```
 data/
-├── cryptopunks/
-│   ├── images/           # NFT image files
-│   ├── transactions.csv  # Transaction history
-│   ├── metadata.json     # Collection metadata
-│   └── attributes.json   # Trait information
-├── bored_apes/
-├── azuki/
-└── art_blocks/
+├── dataset_name/
+│   ├── visual/              # Visual inputs (images/videos)
+│   ├── temporal/            # Temporal sequences (CSV/NPY)
+│   ├── metadata.json        # Dataset configuration
+│   └── splits/              # Train/val/test indices
+│       ├── train.json
+│       ├── val.json
+│       └── test.json
+```
 
+### Visual-Temporal Dataset Examples
 
-### Dataset Download and Preprocessing
+The framework has been validated on multiple datasets demonstrating different visual styles and temporal characteristics:
 
+- **Digital Asset Markets**: 167,492 NFT transactions with pixel art to generative compositions
+- **Weather Prediction**: Satellite imagery with meteorological time series
+- **Traffic Flow**: Street camera feeds with vehicle count sequences
+- **Medical Monitoring**: X-ray sequences with patient vital signs
 
-# Download datasets (requires authentication)
-python scripts/download_datasets.py --collections cryptopunks bored_apes azuki art_blocks
+### Data Preprocessing Pipeline
 
-# Preprocess data for training
-python scripts/preprocess_data.py --input_dir data/raw --output_dir data/processed
+```bash
+# Generic preprocessing for visual-temporal datasets
+python scripts/preprocess_visual_temporal.py \
+    --visual_dir data/raw/visual \
+    --temporal_dir data/raw/temporal \
+    --output_dir data/processed \
+    --visual_size 224 \
+    --temporal_window 168 \
+    --temporal_stride 1
 
-# Extract visual features
-python scripts/extract_visual_features.py --data_dir data/processed
+# Compute dataset statistics for normalization
+python scripts/compute_statistics.py \
+    --data_dir data/processed \
+    --output_file data/processed/statistics.json
 
+# Validate data integrity and format
+python scripts/validate_dataset.py \
+    --data_dir data/processed \
+    --check_visual --check_temporal --check_alignment
+```
 
-## Model Training
+## Model Architecture Configuration
 
-### Configuration
+### Information-Theoretic Parameter Selection
 
-Model configuration is managed through YAML files in the `configs/` directory. The default configuration provides optimal settings for CryptoPunks analysis.
+The framework derives optimal parameters through theoretical analysis:
 
-
-# configs/hivifan_default.yaml
+```yaml
+# configs/hancross_optimal.yaml
 model:
-  visual_embed_dim: 768
-  market_embed_dim: 512
-  fusion_dim: 1024
-  pyramid_levels: [4, 8, 16, 32]
-  attention_heads: 16
+  # Latent dimension from information bottleneck analysis
+  latent_dim: 256  # Derived from I(V,T;Y) ≈ 4.3 nats
+  
+  # Multi-scale pyramid from frequency analysis
+  pyramid_levels: 4
+  pyramid_resolutions: [224, 112, 56, 28]
+  pyramid_channels: [64, 128, 256, 512]
+  
+  # Cross-modal attention configuration
+  attention:
+    num_heads: 16  # From pattern clustering analysis
+    head_dim: 64
+    volatility_adaptation: true
+    adaptation_strength: 0.2
+  
+  # Temporal modeling parameters
+  temporal:
+    kernel_size: 7
+    dilation_rates: [1, 2, 4, 8, 16]
+    hidden_dim: 512
 
 training:
   batch_size: 32
   learning_rate: 1e-4
-  num_epochs: 100
+  weight_decay: 1e-5
   gradient_clip_norm: 1.0
+  mixed_precision: true
+```
 
-### Training Execution
+## Training Procedures
 
+### Standard Training
 
-# Single GPU training
-python train.py --config configs/hivifan_default.yaml --data_dir data/processed/cryptopunks
+```bash
+# Train with default configuration
+python train.py \
+    --config configs/hancross_optimal.yaml \
+    --data_dir data/processed/dataset_name \
+    --experiment_name hancross_baseline
 
-# Multi-GPU distributed training
-python -m torch.distributed.launch --nproc_per_node=4 train.py \
-    --config configs/hivifan_default.yaml \
-    --data_dir data/processed/cryptopunks \
-    --distributed
+# Distributed training across multiple GPUs
+torchrun --nproc_per_node=4 train_distributed.py \
+    --config configs/hancross_optimal.yaml \
+    --data_dir data/processed/dataset_name \
+    --experiment_name hancross_distributed
+```
 
-# Resume from checkpoint
-python train.py --config configs/hivifan_default.yaml \
-    --resume checkpoints/hivifan_cryptopunks/best_model.pth
+### Advanced Training Options
 
-### Monitoring Training Progress
+```bash
+# Information-theoretic regularization
+python train.py \
+    --config configs/hancross_optimal.yaml \
+    --beta 0.1 \
+    --mutual_information_estimation mine \
+    --regularization_weight 0.01
 
+# Progressive multi-scale training
+python train_progressive.py \
+    --config configs/hancross_optimal.yaml \
+    --start_level 1 \
+    --end_level 4 \
+    --epochs_per_level 25
 
-# Launch TensorBoard
-tensorboard --logdir logs/
+# Curriculum learning with volatility scheduling
+python train_curriculum.py \
+    --config configs/hancross_optimal.yaml \
+    --volatility_schedule linear \
+    --initial_volatility 0.1 \
+    --final_volatility 0.5
+```
 
-# View training metrics in browser
-# Navigate to http://localhost:6006
+### Training Monitoring
 
+```bash
+# Launch TensorBoard with custom metrics
+tensorboard --logdir experiments/ --port 6006
 
-## Model Evaluation
+# Monitor information-theoretic metrics
+python scripts/monitor_information_metrics.py \
+    --log_dir experiments/hancross_baseline \
+    --metrics mutual_information compression_ratio attention_entropy
+```
 
-### Reproducing Paper Results
+## Evaluation and Analysis
 
+### Comprehensive Evaluation Suite
 
-# Evaluate on test set
-python evaluate.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --data_dir data/processed/cryptopunks \
-    --output_dir results/cryptopunks
+```bash
+# Standard evaluation metrics
+python evaluate.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --metrics r2 mae rmse correlation \
+    --output_dir results/standard_evaluation
 
-# Cross-collection evaluation
-python evaluate_cross_collection.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --collections bored_apes azuki art_blocks \
-    --output_dir results/cross_collection
+# Cross-modal alignment analysis
+python analyze_cross_modal.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --analysis_type cca attention_consistency information_flow
 
-# Statistical significance testing
-python scripts/statistical_analysis.py --results_dir results/ \
-    --output_file results/statistical_tests.json
+# Hierarchical feature analysis
+python analyze_pyramid_features.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --visualize_features --compute_mutual_information
+```
 
-### Baseline Comparisons
+### Cross-Domain Generalization
 
+```bash
+# Zero-shot evaluation on new domains
+python evaluate_cross_domain.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --source_domain dataset_name \
+    --target_domains weather traffic medical \
+    --output_dir results/cross_domain
 
-# Train and evaluate all baseline methods
-python experiments/run_baselines.py --data_dir data/processed/cryptopunks \
-    --methods clip_based vit_temporal cnn_lstm vanilla_vae \
-    --output_dir results/baselines
-
-# Generate comparison tables
-python scripts/generate_comparison_tables.py --results_dir results/ \
-    --output_file results/comparison_table.tex
+# Few-shot adaptation analysis
+python few_shot_adaptation.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --target_domain new_dataset \
+    --num_shots 10 50 100 500 1000 \
+    --adaptation_layers fusion_only all
+```
 
 ### Ablation Studies
 
-
-# Run comprehensive ablation experiments
-python experiments/ablation_study.py --config configs/ablation_configs/ \
-    --data_dir data/processed/cryptopunks \
+```bash
+# Systematic component ablation
+python ablation_study.py \
+    --base_config configs/hancross_optimal.yaml \
+    --ablate pyramid attention temporal gating \
+    --data_dir data/processed/dataset_name \
     --output_dir results/ablation
 
-# Analyze component contributions
-python scripts/analyze_ablation_results.py --results_dir results/ablation \
-    --output_file results/ablation_analysis.json
+# Information-theoretic analysis
+python information_analysis.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --compute_bounds --validate_theory
+```
 
+## Inference and Deployment
 
-## Interactive Visual Analytics
+### Optimized Inference
 
-### Dashboard Launch
+```bash
+# Single sample inference
+python inference.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --visual_input samples/image.jpg \
+    --temporal_input samples/sequence.csv \
+    --output_format json
 
+# Batch inference with optimization
+python inference_batch.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/test \
+    --batch_size 128 \
+    --use_tensorrt --mixed_precision
+```
 
-# Start visual analytics dashboard
-python dashboard/app.py --config configs/dashboard_config.yaml \
-    --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --data_dir data/processed/cryptopunks \
-    --port 8050
+### Model Optimization for Deployment
 
-# Access dashboard at http://localhost:8050
+```bash
+# Quantization for edge deployment
+python optimize_model.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --optimization_type int8_quantization \
+    --calibration_data data/processed/calibration \
+    --output_path models/hancross_int8.pth
 
+# ONNX export for cross-platform deployment
+python export_onnx.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --output_path models/hancross.onnx \
+    --opset_version 16 \
+    --dynamic_axes batch_size
+```
 
-### Dashboard Features
+## Theoretical Validation
 
-The interactive dashboard provides several visualization components:
+### Information-Theoretic Analysis Tools
 
-- **Real-time Latent Space Visualization**: GPU-accelerated t-SNE with price color mapping
-- **Attention Flow Diagrams**: Dynamic visualization of model attention patterns
-- **3D Market Sentiment Surfaces**: Interactive exploration of visual-financial relationships
-- **Trait Evolution Trees**: Hierarchical visualization of visual trait propagation
+```bash
+# Validate theoretical predictions
+python validate_theory.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --theory_checks latent_capacity scale_information attention_optimality
 
-### Generating Static Visualizations
+# Mutual information estimation
+python estimate_mutual_information.py \
+    --data_dir data/processed/dataset_name \
+    --estimation_method mine kde variational \
+    --num_samples 10000 \
+    --output_file results/mutual_information_analysis.json
 
+# Attention mechanism analysis
+python analyze_attention_theory.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_dir data/processed/dataset_name \
+    --compute_entropy --compute_specialization --validate_gating
+```
 
-# Create publication-ready figures
-python scripts/generate_figures.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --data_dir data/processed/cryptopunks \
-    --output_dir figures/ \
-    --formats pdf png svg
+## Extending the Framework
 
-# Generate attention visualization examples
-python scripts/attention_examples.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --input_images examples/sample_nfts/ \
-    --output_dir figures/attention_examples/
+### Adding New Visual Encoders
 
-## Performance Optimization
+```python
+# custom_encoders/efficient_pyramid.py
+from hancross.models.visual import BaseVisualEncoder
 
-### GPU Memory Optimization
+class EfficientPyramid(BaseVisualEncoder):
+    def __init__(self, config):
+        super().__init__(config)
+        # Implementation following information-theoretic principles
+        
+    def compute_scale_features(self, x, level):
+        # Scale-specific processing with theoretical justification
+        pass
+```
 
-# Enable gradient checkpointing for reduced memory usage
-python train.py --config configs/hivifan_default.yaml \
-    --gradient_checkpointing \
-    --mixed_precision
+### Implementing Custom Fusion Mechanisms
 
-# Use model sharding for large-scale inference
-python inference.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --data_dir data/processed/cryptopunks \
-    --shard_model \
-    --batch_size 128
+```python
+# custom_fusion/adaptive_fusion.py
+from hancross.models.fusion import BaseFusionModule
 
+class AdaptiveFusion(BaseFusionModule):
+    def __init__(self, config):
+        super().__init__(config)
+        # Adaptive fusion with theoretical guarantees
+        
+    def compute_modality_weights(self, visual_features, temporal_features, context):
+        # Information-theoretic weight computation
+        pass
+```
 
-### Distributed Inference
+## Performance Benchmarks
 
+### Computational Efficiency Analysis
 
-# Multi-GPU batch inference
-python -m torch.distributed.launch --nproc_per_node=4 inference_distributed.py \
-    --model_path checkpoints/hivifan_cryptopunks/best_model.pth \
-    --data_dir data/processed/ \
-    --collections cryptopunks bored_apes azuki art_blocks
+Performance metrics on standard hardware configurations:
 
+| Hardware | Batch Size | Inference Time | Memory Usage | Throughput |
+|----------|------------|----------------|--------------|------------|
+| RTX 3070 | 16 | 52.3ms | 6.8GB | 306 samples/s |
+| RTX 3090 | 32 | 46.8ms | 12.4GB | 683 samples/s |
+| A100 40GB | 64 | 42.1ms | 18.7GB | 1520 samples/s |
+| A100 80GB | 128 | 38.9ms | 31.2GB | 3290 samples/s |
 
-## Customization and Extension
+### Scaling Analysis
 
-### Adding New NFT Collections
+```bash
+# Benchmark scaling behavior
+python benchmark_scaling.py \
+    --model_path experiments/hancross_baseline/best_model.pth \
+    --data_sizes 1000 10000 100000 1000000 \
+    --hardware_configs configs/hardware/ \
+    --output_dir results/scaling_analysis
+```
 
+## Citation
 
-# Create new collection configuration
-python scripts/create_collection_config.py --collection_name new_collection \
-    --image_dir path/to/images \
-    --metadata_file path/to/metadata.json
+If you use this code in your research, please cite our paper:
 
-# Preprocess new collection data
-python scripts/preprocess_data.py --input_dir data/new_collection \
-    --output_dir data/processed/new_collection \
-    --config configs/new_collection_config.yaml
+```bibtex
+@article{hancross2024,
+  title={Hierarchical Attention Networks for Cross-Modal Pattern Recognition in Visual-Financial Data},
+  author={Victor, Kombou and Xia, Qi and Gao, Jianbin and others},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024},
+  note={Under Review}
+}
+```
 
+## License
 
-### Model Architecture Modifications
+This project is released under the MIT License. See LICENSE file for details.
 
-The codebase supports modular architecture modifications through configuration files:
+## Acknowledgments
 
-
-# Custom architecture configuration
-model:
-  visual_encoder:
-    type: "custom_pyramid"
-    levels: [2, 4, 8, 16, 32]
-    channels: [128, 256, 512, 1024, 2048]
-  
-  attention_mechanism:
-    type: "enhanced_cross_modal"
-    heads: 32
-    volatility_adaptation: true
-    temperature_scaling: true
-
-
-## Testing and Validation
-
-### Unit Tests
-
-
-# Run comprehensive test suite
-python -m pytest tests/ -v --cov=hivifan
-
-# Test specific components
-python -m pytest tests/test_visual_pyramid.py -v
-python -m pytest tests/test_attention_mechanism.py -v
-python -m pytest tests/test_data_loading.py -v
-
-
-### Integration Tests
-
-
-# End-to-end pipeline testing
-python tests/integration/test_full_pipeline.py --data_dir data/test_samples
-
-# Performance benchmarking
-python tests/benchmarks/benchmark_inference.py --model_path checkpoints/hivifan_cryptopunks/best_model.pth
-
-## Troubleshooting
-
-### Common Issues
-
-**Out of Memory Errors**: Reduce batch size in configuration files or enable gradient checkpointing. For inference, use model sharding or distributed processing.
-
-**CUDA Compatibility**: Ensure PyTorch CUDA version matches your system CUDA installation. Reinstall PyTorch with correct CUDA version if necessary.
-
-**Data Loading Errors**: Verify dataset directory structure matches expected format. Run data validation scripts to check file integrity.
-
-**Dashboard Connection Issues**: Check firewall settings and ensure port 8050 is available. Use `--host 0.0.0.0` flag for remote access.
-
-### Performance Optimization
-
-For optimal performance on different hardware configurations:
-
-- **RTX 3070/3080**: Use batch_size=16, enable mixed precision training
-- **RTX 3090**: Use batch_size=32, standard configuration
-- **A100**: Use batch_size=64, enable large model variants
+This work was supported in part by the National Natural Science Foundation of China (No. U22B2029) and Key Laboratory of Intelligent Space TTC&O (Space Engineering University), Ministry of Education (No. CYK2024-02-02).
